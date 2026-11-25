@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Ankeeta – LinkedIn draft helper</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main style="max-width: 560px">
+    <h1>LinkedIn draft helper</h1>
+    <p class="tagline">Paste an incoming LinkedIn message, get a draft from Ankeeta, then copy it into LinkedIn yourself. Nothing is sent automatically.</p>
+
+    <form class="panel" id="form">
+      <label for="key">Admin API key</label>
+      <input id="key" type="password" autocomplete="off" required />
+      <div class="hint">Kept only in this browser tab (sessionStorage).</div>
+
+      <label for="thread">Thread name (optional – lets Ankeeta remember this conversation)</label>
+      <input id="thread" type="text" maxlength="200" placeholder="e.g. priya-sharma" />
+
+      <label for="context">Earlier messages (optional – one per line: "them:" = the other person, "me:" = Ankeeta / you)</label>
+      <textarea id="context" placeholder="them: Hey, saw your profile!&#10;me: Hi! Thanks for reaching out."></textarea>
+
+      <label for="message">Incoming message</label>
+      <textarea id="message"></textarea>
+      <div class="hint">Leave empty and press "Get opening greeting" to start a new chat.</div>
+
+      <button type="submit" id="go">Draft reply</button>
+      <button type="button" class="secondary" id="opener">Get opening greeting</button>
+      <button type="button" class="secondary" id="copy" hidden>Copy</button>
+      <div id="out" role="status" aria-live="polite"></div>
+    </form>
+  </main>
+  <script src="/linkedin.js"></script>
+</body>
+</html>

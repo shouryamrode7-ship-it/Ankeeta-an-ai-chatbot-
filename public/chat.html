@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat with Ankeeta</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="chat">
+  <div class="chat-wrap">
+    <header class="chat-head">
+      <div class="avatar" aria-hidden="true">A</div>
+      <div><strong>Ankeeta</strong><small>AI companion · always up for a chat</small></div>
+      <a href="/">Home</a>
+    </header>
+    <main id="log" aria-live="polite"></main>
+    <form id="chat-form" autocomplete="off">
+      <input id="msg" type="text" maxlength="1000" placeholder="Say something to Ankeeta…" aria-label="Your message" required />
+      <button type="submit" id="send">Send</button>
+    </form>
+    <div class="chat-foot">Ankeeta is an AI. Please don't share passwords or sensitive info.</div>
+  </div>
+  <script src="/chat.js"></script>
+</body>
+</html>
