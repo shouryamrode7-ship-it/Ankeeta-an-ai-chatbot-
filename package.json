@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "draft": "tsx src/cli/draft.ts"
+    "draft": "tsx src/cli/draft.ts",
+    "build:bg": "esbuild web-src/cosmic-dust.js --bundle --minify --format=iife --outfile=public/cosmic-dust.js"
   },
   "dependencies": {
     "dotenv": "^18.0.10",
@@ -28,7 +29,9 @@
     "@types/express": "^5.0.6",
     "@types/node": "^22.0.0",
     "@types/supertest": "^7.2.1",
+    "esbuild": "^0.28.2",
     "supertest": "^7.3.2",
+    "three": "^0.143.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.1.1"

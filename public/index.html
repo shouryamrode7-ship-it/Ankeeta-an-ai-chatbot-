@@ -5,32 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Chat with Ankeeta</title>
   <meta name="description" content="Ankeeta is an AI companion who's always up for a good chat: movies, music, ideas, or just how your day went." />
-  <meta name="theme-color" content="#1d1b3f" />
+  <meta name="theme-color" content="#1a0a04" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body class="landing">
-  <div class="hero">
-    <div class="brand"><span class="avatar" aria-hidden="true">A</span> Ankeeta</div>
+  <canvas id="scene" aria-hidden="true"></canvas>
 
+  <header class="sp-nav" data-rise="0">
+    <a class="sp-brand" href="/">
+      <svg class="sp-mark" viewBox="0 0 18 18" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="8.5" stroke="white"/></svg>
+      Ankeeta
+    </a>
+    <a class="sp-navcta" href="/chat">
+      Start chatting
+      <svg class="sp-disc" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <circle cx="24" cy="24" r="24" fill="white"/>
+        <path d="M15 24h18M27 17l7 7-7 7" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </header>
+
+  <div class="hero">
     <main>
-      <h1>Hi, I’m Ankeeta.</h1>
-      <p class="lede">An AI companion who’s always up for a good chat: movies, music, ideas, or just how your day went.</p>
-      <a class="btn-sticker" href="/chat">Start chatting</a>
-      <p class="fine">No sign-up. Just say hi.</p>
+      <h1 class="visually-hidden">Ankeeta</h1>
+      <a class="wordmark" href="/chat" aria-label="Ankeeta: start chatting" data-rise="1">Ankeeta</a>
+      <p class="tap" data-rise="2">Tap my name to start chatting.</p>
     </main>
 
-    <aside class="preview" aria-hidden="true">
-      <div class="preview-bar"><span class="avatar">A</span> Ankeeta</div>
-      <div class="preview-body">
-        <div class="bubble bot b1">Heyy! 😊 I’m Ankeeta, and I’m always up for a good conversation. Tell me how your day is going.</div>
-        <div class="bubble bot typing-demo"><span class="dots"><i></i><i></i><i></i></span></div>
-        <div class="bubble bot b2">Movies, music, random ideas… pick anything.</div>
-      </div>
-    </aside>
+    <section class="about" aria-labelledby="about-title" data-rise="3">
+      <h2 id="about-title">What is Ankeeta?</h2>
+      <p>Ankeeta is a friendly AI companion who loves a good conversation. No sign-up, no forms. Just open the chat and say hi.</p>
+      <ul>
+        <li>Chat about movies, music, ideas, or how your day went.</li>
+        <li>Ask for a joke, a recommendation, or a little cheering up.</li>
+        <li>She’s an AI and always says so, and she won’t try to sell you anything.</li>
+      </ul>
+    </section>
 
-    <footer>Ankeeta is an AI.</footer>
+    <footer data-rise="4">Ankeeta is an AI. Please don’t share passwords or other sensitive info.</footer>
   </div>
+
+  <script src="/landing.js"></script>
+  <script src="/cosmic-dust.js"></script>
 </body>
 </html>
