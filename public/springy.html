@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Springy input · Ankeeta</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/springy-input.css">
+</head>
+<body>
+  <main class="springy-page">
+    <h1>Want a hello<br>from Ankeeta?</h1>
+    <p class="lede">Leave your email and I’ll let you know when I learn something new.</p>
+    <div class="springy-wrap">
+      <form class="springy" novalidate>
+        <label class="sp-label" for="sp-email">Your email</label>
+        <div class="sp-box">
+          <div class="sp-layer"><div class="sp-layer-in"></div></div>
+          <input class="sp-input" id="sp-email" type="email" inputmode="email" autocomplete="email" spellcheck="false" aria-describedby="sp-help">
+          <span class="sp-caret"></span>
+        </div>
+        <button class="sp-go idle" type="submit" aria-label="Join the list">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <div class="sp-done" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+          You’re on the list
+        </div>
+      </form>
+      <p class="sp-help" id="sp-help" aria-live="polite"></p>
+    </div>
+    <p><a class="back" href="/">Back to Ankeeta</a></p>
+  </main>
+  <script src="/springy-input.js"></script>
+</body>
+</html>

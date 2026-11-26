@@ -8,6 +8,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/springy-text.css" />
 </head>
 <body class="chat">
   <div class="chat-wrap">
@@ -27,13 +28,14 @@
     </div>
 
     <form id="chat-form" autocomplete="off">
-      <input id="msg" type="text" maxlength="1000" placeholder="Message Ankeeta" aria-label="Your message" required />
+      <input id="msg" data-springy-text type="text" maxlength="1000" placeholder="Message Ankeeta" aria-label="Your message" required />
       <button type="submit" id="send" aria-label="Send message">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
       </button>
     </form>
     <div class="chat-foot">Ankeeta is an AI. Please don’t share passwords or other sensitive info.</div>
   </div>
+  <script src="/springy-text.js"></script>
   <script src="/chat.js"></script>
 </body>
 </html>

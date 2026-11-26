@@ -1,0 +1,22 @@
+/* Springy text overlay for #chat-form input. Needs --input-caret from springy-input.css (or the fallback in JS). */
+:root { --input-caret: 700 32; }
+.st-wrap { position: relative; flex: 1; min-width: 0; display: flex; font-size: 1rem; }
+.st-wrap .st-input { flex: 1; width: 100%; color: transparent; caret-color: transparent; }
+.st-input::selection { background: rgba(255, 184, 46, 0.55); color: transparent; }
+.st-box { position: absolute; left: 22px; right: 22px; top: 50%; height: 24px; margin-top: -12px; pointer-events: none; }
+.st-layer { position: absolute; inset: 0; overflow: hidden; white-space: pre; }
+.st-in { position: absolute; left: 0; top: 0; height: 24px; line-height: 24px; white-space: pre; }
+.st-ch { display: inline-block; line-height: 24px; color: var(--ink); font-kerning: none; transform-origin: 50% 80%; }
+.st-ch.in { animation: sp-drop .5s cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--d, 0ms); }
+.st-ch.out { position: absolute; top: 0; animation: sp-out .34s cubic-bezier(.5,0,.75,0) forwards; }
+.st-caret { position: absolute; left: 0; top: 2px; width: 2px; height: 20px; border-radius: 2px; background: var(--ink); opacity: 0; transform-origin: left center; }
+.st-caret.blink { animation: sp-blink 1s steps(1) infinite; }
+@keyframes sp-drop {
+  0% { transform: translateY(14px) rotate(-16deg) scale(.5); opacity: 0; filter: blur(3px); }
+  55% { transform: translateY(-3px) rotate(4deg) scale(1.1); opacity: 1; filter: none; }
+  80% { transform: translateY(1px) rotate(-1deg) scale(.98); }
+  100% { transform: none; }
+}
+@keyframes sp-out { to { transform: translateY(-18px) rotate(20deg) scale(.5); opacity: 0; filter: blur(3px); } }
+@keyframes sp-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .st-ch.in { animation: none; } }

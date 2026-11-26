@@ -1,0 +1,84 @@
+/* Springy input – Ankeeta styling. Spring values are the originals from DesignBookmark's tokens.css. */
+:root {
+  --input-caret: 700 32;   /* caret travel; it stretches with speed */
+  --input-morph: 300 20;   /* field <-> success pill */
+}
+
+.springy-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  width: min(360px, calc(100vw - 48px)); margin: 0 auto;
+}
+.springy {
+  position: relative; width: 100%; height: 60px; border-radius: 30px;
+  background: var(--paper);
+  box-shadow: 0 0 0 2px var(--ink), 4px 5px 0 2px var(--ink);
+  overflow: hidden; will-change: width, transform;
+  transition: background .3s, box-shadow .25s;
+  user-select: none; -webkit-user-select: none;
+}
+.springy.focus { box-shadow: 0 0 0 2px var(--ink), 4px 5px 0 2px var(--coral); }
+.springy.err { box-shadow: 0 0 0 2px var(--coral), 4px 5px 0 2px var(--coral); }
+.springy.ok { background: var(--online); }
+
+.sp-label { position: absolute; left: 24px; top: 19px; font-size: 1rem; color: var(--ink-soft); transform-origin: left top; pointer-events: none; white-space: nowrap; }
+.sp-box { position: absolute; left: 24px; right: 62px; top: 27px; height: 24px; }
+.sp-layer { position: absolute; inset: 0; overflow: hidden; white-space: pre; pointer-events: none; }
+.sp-layer-in { position: absolute; left: 0; top: 0; height: 24px; line-height: 24px; white-space: pre; }
+.sp-ch { display: inline-block; font-size: 1rem; font-weight: 600; color: var(--ink); line-height: 24px; font-kerning: none; transform-origin: 50% 80%; }
+.sp-ch.in { animation: sp-drop .5s cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--d, 0ms); }
+.sp-ch.out { position: absolute; top: 0; animation: sp-out .34s cubic-bezier(.5,0,.75,0) forwards; }
+.sp-ch.nope { animation: sp-nope .46s ease both; animation-delay: var(--d, 0ms); }
+.sp-ch.fly { animation: sp-fly .42s cubic-bezier(.5,0,.75,0) forwards; animation-delay: var(--d, 0ms); }
+@keyframes sp-drop {
+  0% { transform: translateY(14px) rotate(-16deg) scale(.5); opacity: 0; filter: blur(3px); }
+  55% { transform: translateY(-3px) rotate(4deg) scale(1.1); opacity: 1; filter: none; }
+  80% { transform: translateY(1px) rotate(-1deg) scale(.98); }
+  100% { transform: none; }
+}
+@keyframes sp-out { to { transform: translateY(-18px) rotate(20deg) scale(.5); opacity: 0; filter: blur(3px); } }
+@keyframes sp-nope { 0%,100% { transform: none; } 20% { transform: translateX(-4px) rotate(-8deg); } 40% { transform: translateX(4px) rotate(6deg); } 60% { transform: translateX(-2px); } 80% { transform: translateX(1px); } }
+@keyframes sp-fly { to { transform: translateY(-28px) scale(.6); opacity: 0; filter: blur(4px); } }
+
+.sp-input {
+  position: absolute; inset: 0; width: 100%; height: 100%; border: 0; outline: none; background: none; padding: 0;
+  font: 600 1rem/24px var(--font); font-kerning: none; letter-spacing: 0;
+  color: transparent; caret-color: transparent;
+}
+.sp-input::selection { background: rgba(255,184,46,.55); color: transparent; }
+.sp-caret { position: absolute; left: 0; top: 2px; width: 2px; height: 20px; border-radius: 2px; background: var(--ink); opacity: 0; pointer-events: none; transform-origin: left center; }
+.sp-caret.blink { animation: sp-blink 1s steps(1) infinite; }
+@keyframes sp-blink { 50% { opacity: 0; } }
+
+.sp-go {
+  position: absolute; right: 8px; top: 8px; width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid var(--ink); background: var(--marigold); color: var(--ink);
+  display: grid; place-items: center; cursor: pointer;
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1), opacity .25s;
+}
+.sp-go svg { width: 20px; height: 20px; }
+.sp-go.idle { transform: scale(.82); opacity: .4; }
+.sp-go:active { transform: scale(.88); }
+.springy.ok .sp-go, .springy.ok .sp-label, .springy.ok .sp-box { opacity: 0; pointer-events: none; }
+
+.sp-done {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 8px;
+  color: var(--ink); font-size: 1rem; font-weight: 700; white-space: nowrap;
+  opacity: 0; transform: scale(.9); pointer-events: none;
+}
+.sp-done svg { width: 20px; height: 20px; }
+.sp-done path { stroke-dasharray: 24; stroke-dashoffset: 24; }
+.springy.ok .sp-done { opacity: 1; transform: none; transition: opacity .3s .15s, transform .6s cubic-bezier(.16,1,.3,1) .15s; }
+.springy.ok .sp-done path { stroke-dashoffset: 0; transition: stroke-dashoffset .45s cubic-bezier(.65,0,.35,1) .3s; }
+
+.sp-help { font-size: .875rem; color: var(--ink-soft); min-height: 20px; text-align: center; }
+.sp-help.err { color: #c2264d; font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-ch.in, .sp-ch.nope { animation: none; }
+}
+
+/* demo page */
+.springy-page { display: grid; place-content: center; gap: 28px; min-height: 100dvh; padding: 32px 0; text-align: center; }
+.springy-page h1 { margin: 0; font-size: clamp(2rem, 7vw, 3rem); font-weight: 800; line-height: 1.05; letter-spacing: -.02em; }
+.springy-page p.lede { margin: 0 auto; max-width: 30ch; color: var(--ink-soft); }
+.springy-page a.back { font-weight: 600; }
