@@ -1,7 +1,7 @@
 {
   "name": "ankeeta",
   "version": "1.0.0",
-  "description": "Ankeeta – a friendly, talkative AI companion for Instagram DMs and LinkedIn (draft-reply).",
+  "description": "Ankeeta \u2013 a friendly, talkative AI companion for Instagram DMs and LinkedIn (draft-reply).",
   "private": true,
   "type": "module",
   "main": "dist/index.js",
@@ -32,5 +32,6 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.1.1"
-  }
+  },
+  "license": "MIT"
 }

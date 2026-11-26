@@ -1,5 +1,10 @@
 # Ankeeta
 
+> A friendly, talkative AI companion you can chat with right in your browser.
+
+**Live demo:** https://ankeeta-an-ai-chatbot.onrender.com/chat
+*(Free hosting: the first load after a quiet period can take up to a minute while the server wakes up.)*
+
 A friendly, talkative AI companion (not a sales bot) that anyone can chat with in the browser. Put one link on any profile:
 
 | Link | Opens |
@@ -13,6 +18,17 @@ Visitors need no account and no app. Ankeeta greets them first and remembers the
 - Conversation memory: last 15 messages per `(platform, user)` in SQLite via Node's built-in `node:sqlite` (no native build tools needed; or Redis if `REDIS_URL` is set)
 - LLM: Anthropic by default; any OpenAI-compatible API via `LLM_PROVIDER=openai`
 - Channel-aware tone: warm and chatty on the web, playful on Instagram, polished on LinkedIn
+
+## Highlights
+
+- **Web chat with memory:** each visitor gets their own conversation. Ankeeta greets first and remembers the last 15 messages (SQLite via Node's built-in `node:sqlite`, or Redis).
+- **Provider-agnostic LLM client:** Anthropic or any OpenAI-compatible API (for example Google Gemini's free tier), with timeouts and automatic retries on temporary errors.
+- **Persona and guardrails:** always says it is an AI when asked, never pushes products or links, avoids medical, legal and financial advice, and responds with care if someone seems in distress. Tone adapts per channel.
+- **Safe by default:** rate limiting and input caps on the public chat, secrets only in environment variables, logs never contain message text.
+- **Optional integrations:** Instagram DMs and owner-only WhatsApp DMs through Meta webhooks with HMAC signature verification and duplicate-event protection, plus a compliant LinkedIn draft helper.
+- **Tested and deployable:** 111 automated tests (Vitest and Supertest), Docker image, one-click Render blueprint.
+
+**Stack:** Node.js 22, TypeScript, Express 5.
 
 ## Endpoints
 
@@ -34,7 +50,7 @@ Visitors need no account and no app. Ankeeta greets them first and remembers the
 npm install
 cp .env.example .env      # fill in values (LLM_API_KEY is enough to try the LinkedIn drafter)
 npm run dev               # http://localhost:3000
-npm test                  # 77 tests, no network or API keys needed
+npm test                  # 111 tests, no network or API keys needed
 npm run typecheck && npm run build
 ```
 
@@ -148,3 +164,7 @@ src/linkedin/       draft API + partner adapter      src/whatsapp/    Cloud API 
 src/persona.ts      system prompt per channel        src/memory/      SQLite + Redis stores
 tests/              vitest + supertest
 ```
+
+## License
+
+MIT, see [LICENSE](LICENSE).
