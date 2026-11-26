@@ -1,37 +1,22 @@
 # Render Blueprint – https://render.com/docs/blueprint-spec
+# Free plan: the service sleeps when idle and SQLite memory resets on restart.
+# For persistent memory either set REDIS_URL, or switch to `plan: starter` and add a disk:
+#   disk: { name: ankeeta-data, mountPath: /data, sizeGB: 1 }
 services:
   - type: web
     name: ankeeta
     runtime: docker
-    plan: starter            # persistent disks need a paid plan; see README for the free + Redis option
+    plan: free
     healthCheckPath: /health
     autoDeploy: true
-    disk:
-      name: ankeeta-data
-      mountPath: /data
-      sizeGB: 1
     envVars:
-      - key: DATABASE_PATH
-        value: /data/ankeeta.db
-      - key: INSTAGRAM_USERNAME
-        sync: false
-      - key: INSTAGRAM_VERIFY_TOKEN
-        generateValue: true
-      - key: INSTAGRAM_ACCESS_TOKEN
-        sync: false
-      - key: INSTAGRAM_APP_SECRET
-        sync: false
-      - key: WHATSAPP_ALLOWED_NUMBERS
-        sync: false
-      - key: WHATSAPP_VERIFY_TOKEN
-        generateValue: true
-      - key: WHATSAPP_ACCESS_TOKEN
-        sync: false
-      - key: WHATSAPP_PHONE_NUMBER_ID
-        sync: false
+      - key: LLM_PROVIDER
+        value: openai
+      - key: LLM_BASE_URL
+        value: https://generativelanguage.googleapis.com/v1beta/openai
+      - key: LLM_MODEL
+        value: gemini-flash-lite-latest
+      - key: LLM_TIMEOUT_MS
+        value: "60000"
       - key: LLM_API_KEY
         sync: false
-      - key: LLM_MODEL
-        value: claude-haiku-5-5
-      - key: ADMIN_API_KEY
-        generateValue: true

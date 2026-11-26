@@ -1,32 +1,29 @@
 # Ankeeta
 
-A friendly, talkative AI companion (not a sales bot). One domain, three links you put on your profiles:
+A friendly, talkative AI companion (not a sales bot) that anyone can chat with in the browser. Put one link on any profile:
 
-| Where you put the link | Link | What a visitor gets |
-|---|---|---|
-| Instagram bio | `https://YOUR-DOMAIN/ig` | Opens **Instagram DMs** with Ankeeta (anyone can chat) |
-| LinkedIn profile | `https://YOUR-DOMAIN/li` | Opens the **web chat** in their browser |
-| WhatsApp (status/bio/messages) | `https://YOUR-DOMAIN/wa` | Opens the **web chat** in their browser |
+| Link | Opens |
+|---|---|
+| `https://YOUR-DOMAIN/chat` | The live chat with Ankeeta |
+| `https://YOUR-DOMAIN/ig`, `/li`, `/wa` | The same chat, for your Instagram, LinkedIn and WhatsApp profiles |
 
-Separately, **your own WhatsApp DMs with Ankeeta are owner-only**: only the number(s) in `WHATSAPP_ALLOWED_NUMBERS` get answers; every other number is ignored.
+Visitors need no account and no app. Ankeeta greets them first and remembers the conversation. Instagram DMs and (owner-only) WhatsApp DMs are **optional integrations** that stay off unless you configure them.
 
 - Node.js 22.13+ / TypeScript / Express 5
 - Conversation memory: last 15 messages per `(platform, user)` in SQLite via Node's built-in `node:sqlite` (no native build tools needed; or Redis if `REDIS_URL` is set)
 - LLM: Anthropic by default; any OpenAI-compatible API via `LLM_PROVIDER=openai`
-- Channel-aware tone: playful and short on Instagram, warm and chatty on WhatsApp, polished on LinkedIn
+- Channel-aware tone: warm and chatty on the web, playful on Instagram, polished on LinkedIn
 
 ## Endpoints
 
 | Route | What it does |
 |---|---|
-| `GET /` | Small landing page with "Chat right here" and "Chat on Instagram" buttons |
+| `GET /` | Small landing page with a "Chat with Ankeeta" button |
 | `GET /chat` | Live web chat: anyone can talk to Ankeeta directly in the browser (no account needed) |
-| `GET /ig` | 302 → `https://ig.me/m/<INSTAGRAM_USERNAME>?ref=ig_link` (opens Instagram DMs on mobile) |
-| `GET /wa` | 302 → `/chat?from=whatsapp` (web chat in the browser) |
-| `GET /li` | 302 → `/chat?from=linkedin` (web chat in the browser) |
+| `GET /ig`, `/li`, `/wa` | 302 → `/chat?from=<source>` (same web chat; `from` just labels where the visitor came from) |
 | `GET /health` | `{ "status": "ok", "bot": "Ankeeta" }` |
-| `GET/POST /webhook/instagram` | Meta verification handshake and incoming DMs (signature-checked) |
-| `GET/POST /webhook/whatsapp` | Meta verification handshake and incoming WhatsApp DMs (signature-checked, **owner-only**) |
+| `GET/POST /webhook/instagram` | *Optional.* Meta verification and incoming Instagram DMs (signature-checked) |
+| `GET/POST /webhook/whatsapp` | *Optional.* Meta verification and incoming WhatsApp DMs (signature-checked, **owner-only**) |
 | `POST /api/linkedin/draft-reply` | *Optional.* Draft a reply to a LinkedIn message for you to copy (needs `ADMIN_API_KEY`) |
 | `GET /linkedin` | *Optional.* Small web UI for the draft endpoint |
 | `/webhook/linkedin` | Returns 501 unless you plug in an approved LinkedIn Partner adapter |
@@ -56,7 +53,7 @@ npm run draft -- --thread priya "Hi! Loved your post about hiking."
 
 To test the Instagram webhook locally, expose your port with an HTTPS tunnel (e.g. `ngrok http 3000`) and use that URL in Meta's dashboard.
 
-## 2. Configure the Instagram webhook (Meta Developer App)
+## 2. Optional: Instagram DMs (Meta Developer App)
 
 Prerequisites: an Instagram **professional** (Business or Creator) account.
 
@@ -78,7 +75,7 @@ Note: Instagram only lets a business reply within 24 hours of the user's last me
 
 Security notes: every POST is checked against `X-Hub-Signature-256` using `INSTAGRAM_APP_SECRET` (fails closed if unset), redelivered events are ignored, and the server returns 200 immediately and replies in the background.
 
-## 2b. Configure WhatsApp DMs (owner-only)
+## 2b. Optional: WhatsApp DMs (owner-only)
 
 This is only for **you** chatting with Ankeeta in WhatsApp. Visitors who tap the `/wa` link go to the web chat instead, so they never need WhatsApp.
 
@@ -94,14 +91,14 @@ Ankeeta answers through the **WhatsApp Business Cloud API**. A normal personal W
 
 Notes: WhatsApp lets a business send free-form replies only within **24 hours** of your last message. Ankeeta never starts conversations.
 
-## 3. Deploy with HTTPS
+## 3. Deploy with HTTPS (web chat needs only `LLM_API_KEY` and friends)
 
 Any container host works; Render and Railway are preconfigured. Both give you an HTTPS URL automatically.
 
 **Render**
 1. Push this folder to a GitHub repo.
 2. Render → **New → Blueprint** → select the repo (`render.yaml` is picked up).
-3. Fill in the prompted secrets: `INSTAGRAM_USERNAME`, `INSTAGRAM_ACCESS_TOKEN`, `INSTAGRAM_APP_SECRET`, `LLM_API_KEY`, and for WhatsApp `WHATSAPP_ALLOWED_NUMBERS`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`. `INSTAGRAM_VERIFY_TOKEN` and `ADMIN_API_KEY` are generated; read them in the dashboard.
+3. Fill in the prompted secret `LLM_API_KEY`. (Instagram/WhatsApp variables are only needed if you enable those optional integrations.)
 4. The blueprint attaches a 1 GB disk at `/data` for SQLite memory. That needs a paid plan. On the free plan, remove the `disk` block and `plan: starter`, and set `REDIS_URL` (e.g. a Render Key Value or Upstash instance) so memory survives restarts.
 5. Add your custom domain under *Settings → Custom Domains* if you want a short share link.
 
@@ -114,7 +111,7 @@ docker run -p 3000:3000 --env-file .env -v ankeeta-data:/data ankeeta
 ```
 Put it behind a TLS-terminating proxy (Caddy, nginx, Cloudflare). Meta requires HTTPS.
 
-Put these links on your profiles: `https://YOUR-DOMAIN/ig` on Instagram, `https://YOUR-DOMAIN/li` on LinkedIn, `https://YOUR-DOMAIN/wa` on WhatsApp. (`https://YOUR-DOMAIN/chat` is the web chat itself, and `https://YOUR-DOMAIN/` is a small landing page.)
+Put `https://YOUR-DOMAIN/ig` on Instagram, `/li` on LinkedIn and `/wa` on WhatsApp (or just `/chat` everywhere). All of them open the web chat.
 
 ## Live web chat
 
@@ -126,7 +123,7 @@ When a brand-new chat starts with just "hi" / "hey" / "Hi Ankeeta! 👋" (which 
 
 ## LinkedIn (optional draft helper)
 
-Visitors from LinkedIn use the web chat (`/li`). LinkedIn restricts its Messaging API to approved partners and prohibits unauthorised DM bots on personal accounts, so Ankeeta never logs in to or automates LinkedIn DMs. If you still want help replying to people who message you on LinkedIn yourself:
+LinkedIn visitors use the web chat (`/li`). LinkedIn restricts its Messaging API to approved partners and prohibits unauthorised DM bots on personal accounts, so Ankeeta never logs in to or automates LinkedIn DMs. If you still want help replying to people who message you on LinkedIn yourself:
 
 1. Copy an incoming message, then use `/linkedin` (web UI), `POST /api/linkedin/draft-reply`, or `npm run draft`.
 2. Review the draft and paste it into LinkedIn yourself.
@@ -136,7 +133,7 @@ If you later become an approved LinkedIn partner, implement `LinkedInPartnerAdap
 
 ## Configuration reference
 
-See `.env.example`. Required for owner-only WhatsApp DMs: `WHATSAPP_ALLOWED_NUMBERS`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`. The web chat, `/li` and `/wa` need only `LLM_API_KEY`. Required for the full Instagram flow: `INSTAGRAM_USERNAME`, `INSTAGRAM_VERIFY_TOKEN`, `INSTAGRAM_ACCESS_TOKEN`, `INSTAGRAM_APP_SECRET`, `LLM_API_KEY`, `LLM_MODEL`. The server starts and logs warnings for anything missing; the affected routes answer 503 rather than misbehaving.
+See `.env.example`. **Web chat only needs `LLM_API_KEY`** (plus `LLM_PROVIDER`, `LLM_BASE_URL` and `LLM_MODEL` if you don't use Anthropic). Optional Instagram DMs need `INSTAGRAM_VERIFY_TOKEN`, `INSTAGRAM_ACCESS_TOKEN` and `INSTAGRAM_APP_SECRET`. Optional owner-only WhatsApp DMs need `WHATSAPP_ALLOWED_NUMBERS`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` and an app secret. The server logs a warning only for an integration that is partly configured.
 
 ## Persona and guardrails
 

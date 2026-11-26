@@ -73,5 +73,6 @@ describe("web chat", () => {
     expect(page.status).toBe(200);
     expect(page.text).toContain("Chat with Ankeeta");
     expect((await request(app).get("/")).text).toContain('href="/chat"');
+    expect((await request(app).get("/ig")).headers.location).toBe("/chat?from=instagram");
   });
 });

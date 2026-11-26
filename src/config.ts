@@ -119,20 +119,26 @@ export function loadConfig(env: Env = process.env): Config {
   };
 }
 
-/** Human-readable list of problems that would stop the bot from working in production. */
+/**
+ * Human-readable list of problems. Ankeeta is web-chat-first, so Instagram and WhatsApp are
+ * only checked when someone has started configuring them.
+ */
 export function configWarnings(config: Config): string[] {
   const warnings: string[] = [];
   if (!config.llm.apiKey) warnings.push("LLM_API_KEY is not set – Ankeeta cannot generate replies.");
-  if (!config.instagram.username) warnings.push("INSTAGRAM_USERNAME is not set – /ig will return 503.");
-  if (!config.instagram.verifyToken) warnings.push("INSTAGRAM_VERIFY_TOKEN is not set – webhook verification will fail.");
-  if (!config.instagram.appSecret) warnings.push("INSTAGRAM_APP_SECRET is not set – incoming Instagram webhooks will be rejected.");
-  if (!config.instagram.accessToken) warnings.push("INSTAGRAM_ACCESS_TOKEN is not set – Ankeeta cannot send Instagram replies.");
-  if (config.whatsapp.allowedNumbers.length === 0)
-    warnings.push("WHATSAPP_ALLOWED_NUMBERS is not set – Ankeeta will ignore every WhatsApp DM (it is owner-only).");
-  if (!config.whatsapp.verifyToken) warnings.push("WHATSAPP_VERIFY_TOKEN is not set – WhatsApp webhook verification will fail.");
-  if (!config.whatsapp.accessToken || !config.whatsapp.phoneNumberId)
-    warnings.push("WHATSAPP_ACCESS_TOKEN / WHATSAPP_PHONE_NUMBER_ID not set – Ankeeta cannot send WhatsApp replies.");
-  if (!config.whatsapp.appSecret) warnings.push("No app secret for WhatsApp (WHATSAPP_APP_SECRET) – incoming WhatsApp webhooks will be rejected.");
-  if (!config.linkedin.adminApiKey) warnings.push("ADMIN_API_KEY is not set – LinkedIn draft-reply endpoint is disabled.");
+
+  const ig = config.instagram;
+  if (ig.accessToken || ig.appSecret) {
+    if (!ig.accessToken) warnings.push("Instagram: INSTAGRAM_ACCESS_TOKEN is not set – replies cannot be sent.");
+    if (!ig.appSecret) warnings.push("Instagram: INSTAGRAM_APP_SECRET is not set – webhooks will be rejected.");
+    if (!ig.verifyToken) warnings.push("Instagram: INSTAGRAM_VERIFY_TOKEN is not set – webhook verification will fail.");
+  }
+
+  const wa = config.whatsapp;
+  if (wa.accessToken || wa.phoneNumberId) {
+    if (!wa.accessToken || !wa.phoneNumberId) warnings.push("WhatsApp: WHATSAPP_ACCESS_TOKEN and WHATSAPP_PHONE_NUMBER_ID are both needed.");
+    if (!wa.appSecret) warnings.push("WhatsApp: WHATSAPP_APP_SECRET (or INSTAGRAM_APP_SECRET) is not set – webhooks will be rejected.");
+    if (wa.allowedNumbers.length === 0) warnings.push("WhatsApp: WHATSAPP_ALLOWED_NUMBERS is empty – every WhatsApp DM will be ignored.");
+  }
   return warnings;
 }
