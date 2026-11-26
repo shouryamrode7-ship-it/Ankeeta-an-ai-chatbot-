@@ -4,18 +4,33 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Chat with Ankeeta</title>
-  <meta name="description" content="Ankeeta is a friendly AI companion who loves to chat about life, music, movies and ideas." />
+  <meta name="description" content="Ankeeta is an AI companion who's always up for a good chat: movies, music, ideas, or just how your day went." />
+  <meta name="theme-color" content="#1d1b3f" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="/style.css" />
 </head>
-<body>
-  <main>
-    <div class="avatar" aria-hidden="true">A</div>
-    <h1>Hi, I'm Ankeeta 👋</h1>
-    <p class="tagline">A friendly AI companion who loves chatting about life, music, movies and whatever's on your mind.</p>
+<body class="landing">
+  <div class="hero">
+    <div class="brand"><span class="avatar" aria-hidden="true">A</span> Ankeeta</div>
 
-    <a class="btn web" href="/chat">Chat with Ankeeta</a>
+    <main>
+      <h1>Hi, I’m Ankeeta.</h1>
+      <p class="lede">An AI companion who’s always up for a good chat: movies, music, ideas, or just how your day went.</p>
+      <a class="btn-sticker" href="/chat">Start chatting</a>
+      <p class="fine">No sign-up. Just say hi.</p>
+    </main>
 
-    <footer>Ankeeta is an AI. Just here for good conversation.</footer>
-  </main>
+    <aside class="preview" aria-hidden="true">
+      <div class="preview-bar"><span class="avatar">A</span> Ankeeta</div>
+      <div class="preview-body">
+        <div class="bubble bot b1">Heyy! 😊 I’m Ankeeta, and I’m always up for a good conversation. Tell me how your day is going.</div>
+        <div class="bubble bot typing-demo"><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="bubble bot b2">Movies, music, random ideas… pick anything.</div>
+      </div>
+    </aside>
+
+    <footer>Ankeeta is an AI.</footer>
+  </div>
 </body>
 </html>
