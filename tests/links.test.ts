@@ -23,7 +23,7 @@ describe("share links and basic routes", () => {
     expect(res.status).toBe(200);
     expect(res.headers["content-type"]).toMatch(/html/);
     expect(res.text).toContain('href="/chat"');
-    expect(res.text).toContain("Chat with Ankeeta");
+    expect(res.text).toContain("Start Chatting");
   });
 
   it("GET /health returns status ok", async () => {

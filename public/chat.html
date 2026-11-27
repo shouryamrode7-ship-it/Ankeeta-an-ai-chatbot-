@@ -2,49 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
   <title>Chat with Ankeeta</title>
-  <meta name="theme-color" content="#000000" />
+  <meta name="theme-color" content="#1a110d" />
   <script src="/enter.js"></script>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="preload" href="/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="/style.css" />
-  <link rel="stylesheet" href="/springy-text.css" />
+  <link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/app.css" />
 </head>
 <body class="chat pending">
-  <div class="chat-wrap">
-    <header class="chat-head">
-      <span class="status"><i aria-hidden="true"></i>Online</span>
-      <a class="home" href="/">Home</a>
-      <span class="avatar" aria-hidden="true">A</span>
+  <div class="ambient chat-ambient" aria-hidden="true"></div>
+  <div class="app">
+    <header class="chat-nav">
+      <div class="nav-in">
+        <a class="brand" href="/" aria-label="Ankeeta home"><span class="logo" aria-hidden="true">A</span>Ankeeta</a>
+        <span class="status" data-status role="status"><i aria-hidden="true"></i><span>Checking…</span></span>
+        <div class="actions-r">
+          <button type="button" class="btn btn-quiet" id="new-chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+            New chat
+          </button>
+          <span class="sep" aria-hidden="true"></span>
+          <a class="btn btn-quiet" href="/">Home</a>
+        </div>
+      </div>
     </header>
 
-    <main class="stage">
-      <section class="hero-c" aria-label="Welcome">
-        <span class="hero-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-3.9A8 8 0 1 1 20 12z"/><path d="M9 11.5h.01M12 11.5h.01M15 11.5h.01" stroke-width="2.4"/></svg>
-        </span>
-        <p class="hero-1">Heyy ✨</p>
-        <h1 class="hero-2">How’s your day going?</h1>
-      </section>
-      <div id="log" role="log" aria-live="polite" aria-label="Conversation"></div>
+    <main class="convo" id="convo">
+      <div class="convo-in">
+        <section class="welcome" id="welcome" aria-labelledby="welcome-title">
+          <span class="logo" aria-hidden="true">A</span>
+          <h1 id="welcome-title">Hey, I’m Ankeeta.</h1>
+          <p class="welcome-sub">Your space to think, explore and discover.</p>
+          <p class="welcome-note">Ask a question, test an idea or simply start talking. I’ll keep up with the conversation.</p>
+          <div class="prompts">
+            <button type="button" class="prompt" data-prompt="Help me brainstorm an idea.">
+              <span class="prompt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></span>
+              <span><strong>Brainstorm an idea</strong><small>Turn a rough thought into something concrete.</small></span>
+            </button>
+            <button type="button" class="prompt" data-prompt="Explain something interesting.">
+              <span class="prompt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+              <span><strong>Explore a topic</strong><small>Learn something new and interesting.</small></span>
+            </button>
+            <button type="button" class="prompt" data-prompt="Recommend something to watch.">
+              <span class="prompt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+              <span><strong>Find something to watch</strong><small>Get a recommendation for tonight.</small></span>
+            </button>
+            <button type="button" class="prompt" data-prompt="Let’s have a random conversation.">
+              <span class="prompt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-3.9A8 8 0 1 1 20 12z"/></svg></span>
+              <span><strong>Just talk</strong><small>A relaxed, open-ended conversation.</small></span>
+            </button>
+          </div>
+        </section>
+        <div id="log" role="log" aria-live="polite" aria-label="Conversation"></div>
+      </div>
     </main>
 
-    <form id="chat-form" class="composer" autocomplete="off">
-      <input id="msg" data-springy-text type="text" maxlength="1000" placeholder="Ask me anything ..." aria-label="Your message" required />
-      <div id="chips" class="chips" hidden>
-        <button type="button" class="chip">Recommend a movie</button>
-        <button type="button" class="chip">Tell me a joke</button>
-        <button type="button" class="chip">Suggest some music</button>
-        <button type="button" class="chip">Cheer me up</button>
-      </div>
-      <button type="submit" id="send" aria-label="Send message">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-      </button>
-    </form>
-    <div class="chat-foot">Ankeeta is an AI. Please don’t share passwords or other sensitive info.</div>
+    <div class="composer-wrap">
+      <form id="chat-form" class="composer" autocomplete="off">
+        <textarea id="msg" rows="1" maxlength="1000" placeholder="Ask me anything..." aria-label="Message Ankeeta" enterkeyhint="send"></textarea>
+        <button type="submit" id="send" class="send" aria-label="Send message" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        </button>
+      </form>
+      <p class="foot"><span>Ankeeta is an AI. Please don’t share passwords or other sensitive info.</span><span class="hint">Enter to send · Shift + Enter for a new line</span></p>
+    </div>
   </div>
-  <script src="/springy-text.js"></script>
-  <script src="/chat.js"></script>
+  <script src="/status.js"></script>
+  <script type="module" src="/chat.js"></script>
 </body>
 </html>

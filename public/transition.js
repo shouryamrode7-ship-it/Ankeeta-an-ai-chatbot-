@@ -1,20 +1,20 @@
-/* Home page: clicking "Ankeeta" opens a black hole at the name. The page and the dust swirl into it,
-   then the hole swallows the screen and we move on to /chat (see enter.js for the other half). */
+/* Home page: "Start Chatting" opens a black hole where you clicked. The page and the dust swirl into it,
+   then the hole swallows the screen and we move on to /chat (enter.js opens it again on the other side). */
 (() => {
-  const link = document.querySelector(".wordmark");
-  const hero = document.querySelector(".hero");
-  const dust = document.getElementById("scene");
-  if (!link || !hero) return;
-
+  const links = document.querySelectorAll("a[data-enter]");
+  if (!links.length) return;
+  const targets = ["header.nav", "main", "footer.footer"].map((s) => document.querySelector(s)).filter(Boolean);
+  const dust = null;
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let running = false, overlay = null, anims = [];
 
   function reset() {
     anims.forEach((a) => a.cancel()); anims = [];
     if (overlay) { overlay.remove(); overlay = null; }
-    document.documentElement.style.background = ""; document.body.style.background = "";
+    document.documentElement.style.overflow = "";
     document.body.style.pointerEvents = "";
-    hero.style.transformOrigin = ""; if (dust) dust.style.transformOrigin = "";
+    targets.forEach((el) => { el.style.transformOrigin = ""; });
+    if (dust) dust.style.transformOrigin = "";
     running = false;
   }
   // coming back with the browser's back button must not show the swallowed page
@@ -23,7 +23,7 @@
   const easeIn = (t) => t * t * t;
   const easeOut = (t) => 1 - Math.pow(1 - t, 3);
 
-  link.addEventListener("click", (e) => {
+  links.forEach((link) => link.addEventListener("click", (e) => {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
     if (running) return;
@@ -34,18 +34,20 @@
     try { sessionStorage.setItem("ankeeta_hole", JSON.stringify({ t: Date.now(), x: cx / innerWidth, y: cy / innerHeight })); } catch (_) {}
     if (reduced) { location.assign(href); return; }
 
+    document.documentElement.style.overflow = "hidden";
     document.body.style.pointerEvents = "none";
-    document.documentElement.style.background = "#000"; document.body.style.background = "#000";
-    const hr = hero.getBoundingClientRect();
-    hero.style.transformOrigin = `${cx - hr.left}px ${cy - hr.top}px`;
-    anims.push(hero.animate(
-      [
-        { transform: "rotate(0deg) scale(1)", opacity: 1, filter: "blur(0px)" },
-        { transform: "rotate(150deg) scale(0.35)", opacity: 0.9, filter: "blur(1px)", offset: 0.6 },
-        { transform: "rotate(260deg) scale(0.02)", opacity: 0, filter: "blur(4px)" },
-      ],
-      { duration: 1050, delay: 120, easing: "cubic-bezier(.55,.05,.85,.45)", fill: "forwards" }
-    ));
+    targets.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      el.style.transformOrigin = `${cx - r.left}px ${cy - r.top}px`;
+      anims.push(el.animate(
+        [
+          { transform: "rotate(0deg) scale(1)", opacity: 1 },
+          { transform: "rotate(150deg) scale(0.35)", opacity: 0.9, offset: 0.6 },
+          { transform: "rotate(260deg) scale(0.02)", opacity: 0 },
+        ],
+        { duration: 1050, delay: 120, easing: "cubic-bezier(.55,.05,.85,.45)", fill: "forwards" }
+      ));
+    });
     if (dust) {
       dust.style.transformOrigin = `${cx}px ${cy}px`;
       anims.push(dust.animate(
@@ -64,7 +66,7 @@
     };
     paint(0);
 
-    // hole radius over time: opens (0-650ms), hangs and pulls (to 850ms), then swallows the screen
+    // hole radius over time: opens (0-650ms), hangs and pulls (to 800ms), then swallows the screen
     const T_OPEN = 650, T_SWALLOW = 800, T_END = 1500;
     const t0 = performance.now();
     (function frame(now) {
@@ -78,5 +80,5 @@
       overlay.style.background = "#000"; // fully black: safe to leave
       requestAnimationFrame(() => requestAnimationFrame(() => location.assign(href)));
     })(t0);
-  });
+  }));
 })();

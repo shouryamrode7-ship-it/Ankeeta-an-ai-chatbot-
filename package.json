@@ -1,7 +1,7 @@
 {
   "name": "ankeeta",
   "version": "1.0.0",
-  "description": "Ankeeta \u2013 a friendly, talkative AI companion for Instagram DMs and LinkedIn (draft-reply).",
+  "description": "Ankeeta – a friendly, talkative AI companion for Instagram DMs and LinkedIn (draft-reply).",
   "private": true,
   "type": "module",
   "main": "dist/index.js",
@@ -15,8 +15,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "draft": "tsx src/cli/draft.ts",
-    "build:bg": "esbuild web-src/cosmic-dust.js --bundle --minify --format=iife --outfile=public/cosmic-dust.js"
+    "draft": "tsx src/cli/draft.ts"
   },
   "dependencies": {
     "dotenv": "^18.0.10",
@@ -29,9 +28,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^22.0.0",
     "@types/supertest": "^7.2.1",
-    "esbuild": "^0.28.2",
     "supertest": "^7.3.2",
-    "three": "^0.143.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.1.1"
