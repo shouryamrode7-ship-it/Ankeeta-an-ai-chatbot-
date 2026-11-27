@@ -47,6 +47,7 @@
     text = text.trim();
     if (!text || send.disabled) return;
     chips.hidden = true;
+    document.body.classList.add("started");
     add(text, "me");
     send.disabled = true;
     const typing = addTyping();
@@ -68,8 +69,12 @@
       const { messages } = await post("/api/chat/start", { sessionId });
       for (const m of messages) add(m.content, m.role === "user" ? "me" : "bot");
       // Offer conversation starters only for a brand-new chat.
-      chips.hidden = messages.some((m) => m.role === "user");
-    } catch (err) { add(err.message, "err"); }
+      const started = messages.some((m) => m.role === "user");
+      chips.hidden = started;
+      document.body.classList.toggle("started", started);
+      scrollDown();
+    } catch (err) { document.body.classList.add("started"); add(err.message, "err"); }
+    document.body.classList.remove("pending");
     // Only auto-focus with a mouse/keyboard; on phones it would open the keyboard over the greeting.
     if (window.matchMedia("(pointer: fine)").matches) input.focus();
   })();
