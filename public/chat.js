@@ -122,6 +122,7 @@ async function sendMessage(raw) {
   body.classList.add("started");
   input.value = ""; autoGrow(); syncSend();
   addUser(text);
+  touchChat(sessionId, text);
   const typing = addTyping();
   try {
     const { reply } = await post("/api/chat", { sessionId, message: text });
@@ -156,40 +157,104 @@ log.addEventListener("click", async (e) => {
   setTimeout(() => { btn.textContent = "Copy"; }, 1600);
 });
 
-$("new-chat").addEventListener("click", async () => {
-  if (busy) return;
-  sessionId = newId();
-  try { localStorage.setItem("ankeeta_session", sessionId); } catch (_) {}
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!reduce && log.children.length) {
-    convo.classList.add("fading");
-    await new Promise((r) => setTimeout(r, 200));
-  }
+// ── chats list in the sidebar (kept in this browser; the server holds each chat's messages) ──
+const ICON_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const CHATS_KEY = "ankeeta_chats";
+const chatList = $("chat-list"), chatEmpty = $("chat-empty"), chatSearch = $("chat-search");
+const root = document.documentElement;
+
+function readChats() {
+  try { const v = JSON.parse(localStorage.getItem(CHATS_KEY) || "[]"); return Array.isArray(v) ? v.filter((c) => c && typeof c.id === "string" && typeof c.title === "string") : []; }
+  catch (_) { return []; }
+}
+function writeChats(c) { try { localStorage.setItem(CHATS_KEY, JSON.stringify(c.slice(0, 50))); } catch (_) {} }
+function touchChat(id, title, { bump = true } = {}) {
+  const chats = readChats();
+  const i = chats.findIndex((c) => c.id === id);
+  if (i >= 0 && !bump) return;
+  const chat = i >= 0 ? chats.splice(i, 1)[0] : { id, title: (title || "New chat").replace(/\s+/g, " ").trim().slice(0, 48) };
+  chat.ts = Date.now();
+  chats.unshift(chat);
+  writeChats(chats);
+  renderChats();
+}
+function renderChats() {
+  const q = chatSearch.value.trim().toLowerCase();
+  const chats = readChats().filter((c) => !q || c.title.toLowerCase().includes(q));
+  chatList.replaceChildren(...chats.map((c) => {
+    const li = document.createElement("li");
+    const open = document.createElement("button");
+    open.type = "button"; open.className = "sb-chat" + (c.id === sessionId ? " active" : "");
+    open.dataset.id = c.id; open.textContent = c.title; open.title = c.title;
+    if (c.id === sessionId) open.setAttribute("aria-current", "true");
+    const del = document.createElement("button");
+    del.type = "button"; del.className = "sb-del"; del.dataset.del = c.id;
+    del.setAttribute("aria-label", "Delete chat: " + c.title); del.innerHTML = ICON_X;
+    li.append(open, del);
+    return li;
+  }));
+  chatEmpty.hidden = chats.length > 0;
+  chatEmpty.textContent = q ? "No chats match your search." : "No chats yet. Say hello!";
+}
+
+async function openSession(id) {
+  sessionId = id;
+  try { localStorage.setItem("ankeeta_session", id); } catch (_) {}
   log.replaceChildren();
-  convo.classList.remove("fading");
   body.classList.remove("started");
   input.value = ""; autoGrow(); syncSend();
-  convo.scrollTo({ top: 0 });
-  try { await post("/api/chat/start", { sessionId }); } catch (_) { /* the first message will start the session anyway */ }
-  if (finePointer) input.focus();
-});
-
-(async () => {
   try {
     const { messages } = await post("/api/chat/start", { sessionId });
-    const started = messages.some((m) => m.role === "user");
-    if (started) {
+    const firstUser = messages.find((m) => m.role === "user");
+    if (firstUser) {
       messages.forEach((m, i) => {
         if (m.role === "user") addUser(m.content);
         else if (i > 0) addAi(m.content); // the opening greeting is replaced by the welcome screen
       });
       body.classList.add("started");
+      touchChat(id, firstUser.content, { bump: false }); // adds chats that predate the sidebar
       scrollDown(false);
     }
   } catch (err) {
     body.classList.add("started");
     addError(err.message);
   }
+  renderChats();
+  convo.scrollTo({ top: 0 });
+  if (body.classList.contains("started")) scrollDown(false);
+}
+
+// fade the conversation out, swap it, fade back in
+async function swapTo(id) {
+  if (busy) return;
+  root.classList.remove("sb-open");
+  if (!reduced && log.children.length) {
+    convo.classList.add("fading");
+    await new Promise((r) => setTimeout(r, 200));
+  }
+  await openSession(id);
+  convo.classList.remove("fading");
+  if (finePointer) input.focus();
+}
+
+document.querySelectorAll("[data-new-chat]").forEach((b) => b.addEventListener("click", () => swapTo(newId())));
+chatSearch.addEventListener("input", renderChats);
+chatList.addEventListener("click", (e) => {
+  const del = e.target.closest("[data-del]");
+  if (del) {
+    if (busy) return;
+    const id = del.dataset.del;
+    writeChats(readChats().filter((c) => c.id !== id));
+    if (id === sessionId) swapTo(newId()); else renderChats();
+    return;
+  }
+  const open = e.target.closest(".sb-chat");
+  if (open && open.dataset.id !== sessionId) swapTo(open.dataset.id);
+  else if (open) root.classList.remove("sb-open");
+});
+
+(async () => {
+  await openSession(sessionId);
   body.classList.remove("pending");
   if (finePointer) input.focus();
 })();
