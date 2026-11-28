@@ -1,91 +1,81 @@
-/* Springy text – adds the bouncy letters and stretchy caret to any <input data-springy-text>.
-   The real input stays (typing, paste, selection, screen readers) with transparent text; a mirror layer
-   draws one span per character. Caret spring is the original 700 / 32 (CSS var --input-caret). */
+/* Springy text for the chat box – plain JS, no dependencies.
+   The real <textarea> keeps doing the editing (so typing, selection, paste and IME all behave normally); its
+   text is made transparent and mirrored in an overlay where each new letter drops in with a spring and a
+   springy caret follows the cursor (stiffness/damping 700/32, as in the original Springy Input). */
 (() => {
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const token = getComputedStyle(document.documentElement).getPropertyValue("--input-caret").trim() || "700 32";
-  const [K, Cd] = token.split(/\s+/).map(Number);
-  const damp = reduce ? 2 * Math.sqrt(K) : Cd;
+  const input = document.getElementById("msg");
+  const wrap = input && input.closest(".sp-wrap");
+  if (!wrap || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const layer = wrap.querySelector(".sp-in"), box = wrap.querySelector(".sp-text"), caret = wrap.querySelector(".sp-caret");
+  wrap.classList.add("sp-on");
 
-  const all = [];
-  let last = performance.now();
-  (function loop(now) {
-    const dt = Math.min((now - last) / 1000, 1 / 30); last = now;
-    for (let k = 0; k < 4; k++) all.forEach((c) => c.frame(dt / 4));
-    all.forEach((c) => c.render());
-    requestAnimationFrame(loop);
-  })(last);
+  const CARET_H = 20;
+  const spring = { k: 700, c: 32 };
+  const X = { x: 0, v: 0, t: 0 }, Y = { x: 0, v: 0, t: 0 };
+  const step = (s, dt) => { const a = -spring.k * (s.x - s.t) - spring.c * s.v; s.v += a * dt; s.x += s.v * dt; };
 
-  function attach(input) {
-    const wrap = document.createElement("div");
-    wrap.className = "st-wrap";
-    input.parentNode.insertBefore(wrap, input);
-    wrap.appendChild(input);
-    wrap.insertAdjacentHTML("beforeend",
-      '<div class="st-box" aria-hidden="true"><div class="st-layer"><div class="st-in"></div></div><span class="st-caret"></span></div>');
-    input.classList.add("st-input");
-    const layer = wrap.querySelector(".st-in"), box = wrap.querySelector(".st-box"), caret = wrap.querySelector(".st-caret");
+  let prev = "", chars = [], lastMove = performance.now(), snap = true;
 
-    const c = { x: 0, v: 0, t: 0 };
-    let spans = [], prev = "", scroll = 0, lastMove = 0, focused = false;
-
-    function sync() {
-      const next = input.value;
-      if (next === prev) return;
-      let a = 0; while (a < prev.length && a < next.length && prev[a] === next[a]) a++;
-      let b = 0; while (b < prev.length - a && b < next.length - a && prev[prev.length - 1 - b] === next[next.length - 1 - b]) b++;
-      spans.splice(a, prev.length - a - b).forEach((s) => {
-        s.classList.remove("in");
-        s.style.left = s.offsetLeft + "px";
-        s.classList.add("out");
-        setTimeout(() => s.remove(), 360);
-      });
-      const ref = spans[a] || null;
-      const fresh = [...next.slice(a, next.length - b)].map((ch, i) => {
-        const s = document.createElement("span");
-        s.className = "st-ch in"; s.textContent = ch;
-        s.style.setProperty("--d", Math.min(i, 30) * 18 + "ms");
-        layer.insertBefore(s, ref);
-        return s;
-      });
-      spans.splice(a, 0, ...fresh);
-      prev = next;
-      lastMove = performance.now();
+  function rebuild(next) {
+    let a = 0;
+    while (a < prev.length && a < next.length && prev[a] === next[a]) a++;
+    let b = 0;
+    while (b < prev.length - a && b < next.length - a && prev[prev.length - 1 - b] === next[next.length - 1 - b]) b++;
+    const newEnd = next.length - b;
+    const frag = document.createDocumentFragment();
+    chars = [];
+    let word = null, u = 0, fresh = 0;
+    for (const cp of Array.from(next)) {
+      const len = cp.length;
+      const el = document.createElement("span");
+      if (cp === "\n" || /\s/.test(cp)) {
+        el.textContent = cp; el.dataset.nl = cp === "\n" ? "1" : "";
+        frag.append(el); word = null;
+      } else {
+        if (!word) { word = document.createElement("span"); word.className = "sp-w"; frag.append(word); }
+        el.className = "sp-ch"; el.textContent = cp;
+        if (u >= a && u < newEnd) { el.classList.add("in"); el.style.setProperty("--d", Math.min(fresh++, 30) * 16 + "ms"); }
+        word.append(el);
+      }
+      u += len;
+      chars.push({ el, end: u });
     }
-
-    function caretTarget() {
-      const i = input.selectionEnd ?? spans.length;
-      if (!spans.length) return 0;
-      if (i < spans.length) return spans[i].offsetLeft;
-      const l = spans[spans.length - 1];
-      return l.offsetLeft + l.offsetWidth;
-    }
-
-    input.addEventListener("focus", () => { focused = true; });
-    input.addEventListener("blur", () => { focused = false; });
-    ["keydown", "keyup", "click", "select"].forEach((ev) => input.addEventListener(ev, () => { lastMove = performance.now(); }));
-
-    all.push({
-      frame(dt) {
-        sync(); // also catches input.value being cleared from code after sending
-        c.t = caretTarget();
-        const a = -K * (c.x - c.t) - damp * c.v;
-        c.v += a * dt; c.x += c.v * dt;
-      },
-      render() {
-        const w = box.clientWidth;
-        const want = Math.max(0, c.t - w + 6);
-        scroll += (want - scroll) * 0.25;
-        if (Math.abs(want - scroll) < 0.3) scroll = want;
-        layer.style.transform = `translateX(${-scroll}px)`;
-        const speed = Math.abs(c.v), stretch = Math.min(speed / 80, 7);
-        caret.style.width = 2 + stretch + "px";
-        caret.style.transform = `translateX(${c.x - scroll - (c.v > 0 ? stretch : 0)}px)`;
-        caret.style.opacity = focused ? 1 : 0;
-        caret.classList.toggle("blink", focused && performance.now() - lastMove > 550 && speed < 5);
-      },
-    });
+    layer.replaceChildren(frag);
+    prev = next;
+    lastMove = performance.now();
   }
 
-  document.querySelectorAll("input[data-springy-text]").forEach(attach);
+  function target() {
+    const sel = input.selectionEnd ?? prev.length;
+    let j = 0;
+    while (j < chars.length && chars[j].end <= sel) j++;
+    const cs = getComputedStyle(box), padL = parseFloat(cs.paddingLeft) || 0, padT = parseFloat(cs.paddingTop) || 0;
+    if (j === 0) return { x: padL, y: padT + (24 - CARET_H) / 2 };
+    const el = chars[j - 1].el, r = el.getBoundingClientRect(), b = box.getBoundingClientRect();
+    if (el.dataset.nl) return { x: padL, y: r.top - b.top + 24 + (24 - CARET_H) / 2 - Math.max(0, (24 - r.height) / 2) };
+    return { x: r.right - b.left, y: r.top - b.top + r.height / 2 - CARET_H / 2 };
+  }
+
+  const events = ["keydown", "keyup", "click", "select", "input", "focus"];
+  events.forEach((ev) => input.addEventListener(ev, () => { lastMove = performance.now(); }));
+
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min((now - last) / 1000, 1 / 30); last = now;
+    if (input.value !== prev) rebuild(input.value);       // typed, pasted, dictated or cleared by the page
+    layer.style.transform = `translateY(${-input.scrollTop}px)`;
+    const focused = document.activeElement === input && input.selectionStart === input.selectionEnd;
+    const t = target();
+    X.t = t.x; Y.t = t.y;
+    if (snap || !focused) { X.x = X.t; Y.x = Y.t; X.v = Y.v = 0; snap = !focused; }
+    for (let k = 0; k < 4; k++) { step(X, dt / 4); step(Y, dt / 4); }
+    const speed = Math.abs(X.v) + Math.abs(Y.v), stretch = Math.min(speed / 80, 7);
+    caret.style.width = 2 + stretch + "px";
+    caret.style.transform = `translate(${X.x - (X.v > 0 ? stretch : 0)}px, ${Y.x}px)`;
+    const idle = performance.now() - lastMove > 550 && speed < 5;
+    caret.style.opacity = focused ? 1 : 0;
+    caret.classList.toggle("blink", focused && idle);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();

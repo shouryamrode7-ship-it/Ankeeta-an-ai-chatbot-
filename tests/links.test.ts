@@ -18,12 +18,14 @@ describe("share links and basic routes", () => {
     for (const route of ["/ig", "/li", "/wa"]) expect((await request(app).get(route)).status).toBe(302);
   });
 
-  it("GET / serves the landing page pointing to the web chat", async () => {
-    const res = await request(makeHarness().app).get("/");
-    expect(res.status).toBe(200);
-    expect(res.headers["content-type"]).toMatch(/html/);
-    expect(res.text).toContain('href="/chat"');
-    expect(res.text).toContain("Start Chatting");
+  it("GET / opens the chat directly (no separate landing page)", async () => {
+    for (const route of ["/", "/chat"]) {
+      const res = await request(makeHarness().app).get(route);
+      expect(res.status).toBe(200);
+      expect(res.headers["content-type"]).toMatch(/html/);
+      expect(res.text).toContain('id="chat-form"');
+      expect(res.text).not.toContain("Start Chatting");
+    }
   });
 
   it("GET /health returns status ok", async () => {

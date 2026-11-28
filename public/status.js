@@ -7,7 +7,7 @@
   const set = (ok) => els.forEach((el) => {
     el.classList.toggle("ok", ok);
     const label = el.querySelector("span");
-    if (label) label.textContent = ok ? "Online" : "Unavailable";
+    if (label) label.textContent = (el.dataset.prefix || "") + (ok ? "Online" : "Unavailable");
   });
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 8000);

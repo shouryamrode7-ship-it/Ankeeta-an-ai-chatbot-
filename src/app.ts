@@ -77,6 +77,10 @@ export function createApp(deps: AppDeps): Express {
   app.get("/linkedin", (_req, res) => {
     res.sendFile("linkedin.html", { root: PUBLIC_DIR });
   });
+  // The chat is the home page; /chat (used by the share links) serves the same page.
+  app.get("/chat", (_req, res) => {
+    res.sendFile("index.html", { root: PUBLIC_DIR });
+  });
   app.use(express.static(PUBLIC_DIR, { index: "index.html", extensions: ["html"] }));
 
   app.use((_req, res) => {

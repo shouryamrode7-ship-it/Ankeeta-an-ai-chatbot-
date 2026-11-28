@@ -67,12 +67,39 @@ describe("web chat", () => {
     expect(last).toBe(429);
   });
 
-  it("serves the chat page and the landing page links to it", async () => {
+  it("serves the chat at / and /chat, and share links point to it", async () => {
     const { app } = makeHarness();
     const page = await request(app).get("/chat");
     expect(page.status).toBe(200);
-    expect(page.text).toContain("Chat with Ankeeta");
-    expect((await request(app).get("/")).text).toContain('href="/chat"');
+    expect(page.text).toContain("chat-form");
+    expect((await request(app).get("/")).text).toContain("chat-form");
     expect((await request(app).get("/ig")).headers.location).toBe("/chat?from=instagram");
+  });
+
+  it("passes attached file text to the model and keeps it in the history", async () => {
+    const { app, llm } = makeHarness();
+    const res = await request(app)
+      .post("/api/chat")
+      .send({ sessionId: S1, message: "summarise this", attachments: [{ name: "notes[1].txt", text: "Buy milk. Call Sam." }] });
+    expect(res.status).toBe(200);
+    const sent = llm.calls[0]!.messages.at(-1)!.content;
+    expect(sent).toContain("summarise this");
+    expect(sent).toContain("[[attachment: notes 1 .txt]]\nBuy milk. Call Sam.\n[[/attachment]]");
+    const reopened = await request(app).post("/api/chat/start").send({ sessionId: S1 });
+    expect(JSON.stringify(reopened.body.messages)).toContain("Buy milk");
+  });
+
+  it("accepts a file with no message, and rejects bad or oversized attachments", async () => {
+    const { app } = makeHarness();
+    const ok = await request(app).post("/api/chat").send({ sessionId: S1, attachments: [{ name: "a.txt", text: "hello" }] });
+    expect(ok.status).toBe(200);
+    const bad = [
+      { sessionId: S1, message: "x", attachments: "nope" },
+      { sessionId: S1, message: "x", attachments: [{ name: "a.txt" }] },
+      { sessionId: S1, message: "x", attachments: [{ name: "a.txt", text: "   " }] },
+      { sessionId: S1, message: "x", attachments: Array.from({ length: 4 }, () => ({ name: "a", text: "b" })) },
+      { sessionId: S1, message: "x", attachments: Array.from({ length: 3 }, () => ({ name: "a", text: "z".repeat(14_000) })) },
+    ];
+    for (const body of bad) expect((await request(app).post("/api/chat").send(body)).status).toBe(400);
   });
 });

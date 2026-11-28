@@ -22,6 +22,8 @@ export interface ReplyOptions {
   seedHistory?: ChatMessage[];
   /** Persist the exchange to memory (default true). */
   remember?: boolean;
+  /** Raise the input cap for this message (used for messages that carry attached file text). */
+  maxInputChars?: number;
 }
 
 export interface ReplyResult {
@@ -67,7 +69,7 @@ export class Ankeeta {
 
   /** Throws if the LLM fails – use `replySafe` when a reply must always be produced. */
   async reply(opts: ReplyOptions): Promise<string> {
-    const text = clip(opts.text.trim(), MAX_INPUT_CHARS);
+    const text = clip(opts.text.trim(), opts.maxInputChars ?? MAX_INPUT_CHARS);
     const stored = await this.store.getHistory(opts.platform, opts.userId);
     const history = stored.length > 0 ? stored : (opts.seedHistory ?? []);
 

@@ -3,17 +3,18 @@
   const root = document.documentElement;
   let theme = null, sb = null;
   try { theme = localStorage.getItem("ankeeta_theme"); sb = localStorage.getItem("ankeeta_sidebar"); } catch (_) {}
-  root.dataset.theme = theme === "light" ? "light" : "dark";
-  if (sb === "closed" && innerWidth > 900) root.classList.add("sb-closed");
+  root.dataset.theme = theme === "light" ? "light" : "dark"; // the night scene is the default
+  if (sb !== "open" && innerWidth > 900) root.classList.add("sb-closed"); // closed until the person opens it once
 
   document.addEventListener("click", (e) => {
     const t = e.target.closest && e.target.closest("[data-theme-toggle]");
     if (t) {
-      const next = root.dataset.theme === "light" ? "dark" : "light";
-      root.classList.add("theme-anim");
-      root.dataset.theme = next;
-      try { localStorage.setItem("ankeeta_theme", next); } catch (_) {}
-      setTimeout(() => root.classList.remove("theme-anim"), 350);
+      const next = root.dataset.theme === "dark" ? "light" : "dark";
+      if (window.skyShift) window.skyShift(next);
+      else {
+        root.dataset.theme = next;
+        try { localStorage.setItem("ankeeta_theme", next); } catch (_) {}
+      }
       return;
     }
     const s = e.target.closest && e.target.closest("[data-sidebar-toggle]");
