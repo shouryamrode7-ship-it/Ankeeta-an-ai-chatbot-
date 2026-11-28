@@ -688,3 +688,13 @@ html.moon-hover, html.moon-hover * { cursor: pointer; }
 @media (max-width: 767px) { html.photo-dark[data-theme="dark"] #scene { background-position: 30% center; } }
 html[data-theme="light"] .foot, html[data-theme="light"] .foot * { color: #3d2231; font-weight: 500; text-shadow: 0 0 6px #fff, 0 0 12px rgba(255, 255, 255, 0.9); }
 @media (max-width: 767px) { html.photo-light[data-theme="light"] #scene { background-position: 28% center; } }
+
+/* no banner: the header is just floating buttons over the scene */
+.chat-nav { margin: 0; border: 0; border-radius: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; position: absolute; top: 0; left: 0; right: 0; z-index: 15; pointer-events: none; }
+.chat-nav .nav-in { height: 64px; padding: 0 var(--s5); justify-content: space-between; }
+.chat-nav .who { display: none; }
+.chat-nav .icon-circle { pointer-events: auto; background: var(--glass); border: 1px solid var(--border-strong); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.main { position: relative; }
+.welcome { min-height: calc(100dvh - 150px); padding-top: var(--s10); }
+.about { padding-top: var(--s10); }
+.composer-wrap::before { display: none; }

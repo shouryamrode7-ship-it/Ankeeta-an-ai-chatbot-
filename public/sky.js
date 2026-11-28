@@ -35,14 +35,14 @@
     const r = m && m.getBoundingClientRect();
     if (r && r.width) return r;
     if (root.classList.contains("photo-dark") && root.dataset.theme === "dark") {
-      const iw = 1869, ih = 1054, k = Math.max(innerWidth / iw, innerHeight / ih);
+      const iw = 1869, ih = 934, k = Math.max(innerWidth / iw, innerHeight / ih);
       const d = 0.068 * iw * k;
-      return { left: (innerWidth - iw * k) / 2 + 0.222 * iw * k - d / 2, top: (innerHeight - ih * k) / 2 + 0.218 * ih * k - d / 2, width: d };
+      return { left: (innerWidth - iw * k) / 2 + 0.222 * iw * k - d / 2, top: (innerHeight - ih * k) / 2 + 0.118 * ih * k - d / 2, width: d };
     }
     if (root.classList.contains("photo-light") && root.dataset.theme === "light") {
-      const iw = 1864, ih = 1043, k = Math.max(innerWidth / iw, innerHeight / ih);
+      const iw = 1864, ih = 923, k = Math.max(innerWidth / iw, innerHeight / ih);
       const d = 0.05 * iw * k;
-      return { left: (innerWidth - iw * k) / 2 + 0.165 * iw * k - d / 2, top: (innerHeight - ih * k) / 2 + 0.36 * ih * k - d / 2, width: d };
+      return { left: (innerWidth - iw * k) / 2 + 0.165 * iw * k - d / 2, top: (innerHeight - ih * k) / 2 + 0.275 * ih * k - d / 2, width: d };
     }
     return null;
   }
