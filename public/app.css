@@ -686,3 +686,5 @@ html[data-theme="light"] { --crater: 0; }
 .c-crater { opacity: var(--crater, 1); }
 html.moon-hover, html.moon-hover * { cursor: pointer; }
 @media (max-width: 767px) { html.photo-dark[data-theme="dark"] #scene { background-position: 30% center; } }
+html[data-theme="light"] .foot, html[data-theme="light"] .foot * { color: #3d2231; font-weight: 500; text-shadow: 0 0 6px #fff, 0 0 12px rgba(255, 255, 255, 0.9); }
+@media (max-width: 767px) { html.photo-light[data-theme="light"] #scene { background-position: 28% center; } }

@@ -39,6 +39,11 @@
       const d = 0.068 * iw * k;
       return { left: (innerWidth - iw * k) / 2 + 0.222 * iw * k - d / 2, top: (innerHeight - ih * k) / 2 + 0.218 * ih * k - d / 2, width: d };
     }
+    if (root.classList.contains("photo-light") && root.dataset.theme === "light") {
+      const iw = 1864, ih = 1043, k = Math.max(innerWidth / iw, innerHeight / ih);
+      const d = 0.05 * iw * k;
+      return { left: (innerWidth - iw * k) / 2 + 0.165 * iw * k - d / 2, top: (innerHeight - ih * k) / 2 + 0.36 * ih * k - d / 2, width: d };
+    }
     return null;
   }
   window.skyShift = (next) => {
